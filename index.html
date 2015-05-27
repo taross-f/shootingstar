@@ -1,0 +1,27 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io('http://localhost');
+  socket.on('initialize', function (data) {
+    console.log(data);
+  });
+  
+  socket.on('shootStar', function (data) {
+    console.log(data);
+  });
+  
+  setInterval(function() {
+    socket.emit('wish', {wish: '宝くじ前後賞あてたい'});
+  }, 10000);
+  
+  socket.on('result', function (data) {
+    console.log('result:' + data);
+  });
+  
+  socket.on('showWish', function(data) {
+    console.log('showWish:' + data.wish + ' ' + data.date);
+  });
+  
+  socket.on('currentWatcher', function(data) {
+    console.log(data);
+  });
+</script>
