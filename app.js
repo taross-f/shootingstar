@@ -1,6 +1,15 @@
 var app = require('http').createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
+var redis = require('redis');
+
+var ngwords = require(__dirname + '/ngword.json');
+
+// localhost:6379 でredis動いてないと死
+var client = redis.createClient();
+client.on("error", function(err) {
+  console.log("Error:" + err);
+});
 
 app.listen(80);
 
@@ -17,37 +26,72 @@ function handler (req, res) {
   });
 }
 
-var initial = [
-    {
-        wish: '宝くじ1等あたる',
-        date: Date.now()
-    },
-    {
-        wish: '宝くじ2等あたる',
-        date: Date.now()
-    },
-    {
-        wish: '宝くじ3等あたる',
-        date: Date.now()
-    },
-]
+var key = function() { return "wishes"; };
 
-var watcher = 0;
+var randomInt = function(min, max) {
+  return Math.floor( Math.random() * (max - min + 1) ) + min;
+};
+
+var timeoutId = 0;
+
+function shoot() {
+  timeoutId = setTimeout(function() {
+    io.emit('shootStar', {
+      expire: randomInt(3000, 5000),
+      startx: 0.2,
+      starty: 0.4,
+      endx: 0.8,
+      endy: 0.8,
+      ease: 1
+    });
+    shoot();
+  }, randomInt(5000, 10000));
+}
+
+function isNg(wish) {
+  return ngwords.some(function(x) { return wish.indexOf(x) >= 0; });
+}
 
 io.on('connection', function (socket) {
   console.log('connect...');
-  socket.emit('initialize', { wishes: initial });
-  io.emit('currentWatcher', ++watcher);
-  var count = 0;
-  var intervalId = setInterval(function() {
-    socket.emit('shootStar', 'shoot!:' + count++);
-  }, 5000);
+  
+  client.lrange(key(), -10, -1, function(err, items) {
+    if (err) {
+      console.error("Error:" + err);
+      return;
+    }
+
+    console.log(items);
+    if (items.length) {
+      var wishes = [];
+      items.forEach(function(x) {
+        wishes.push(JSON.parse(x));
+      });
+      socket.emit('initialize', { wishes: wishes });
+    }
+  });
+  
+  io.emit('currentWatcher', socket.client.conn.server.clientsCount);
+  if (!timeoutId) shoot();
   
   socket.on('wish', function(data) {
     console.log(data);
     // validate data
+    if (isNg(data.wish)) {
+      // response
+      socket.emit('result', {
+        result: false,
+        wish: "",
+        error: "願い事が微妙だよ・・・"
+      });
+      return;
+    }
     
     // register data
+    client.rpush(key(), JSON.stringify({
+      wish: data.wish,
+      date: Date.now()
+    }));
     
     // response
     socket.emit('result', {
@@ -64,9 +108,8 @@ io.on('connection', function (socket) {
   });
   
   socket.on('disconnect', function (client) {
-    clearInterval(intervalId);
     console.log('disconnect:' + client);
-    io.emit('currentWatcher', --watcher);
+    io.emit('currentWatcher', socket.client.conn.server.clientsCount);
   });
 });
 
