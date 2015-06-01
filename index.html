@@ -2,7 +2,7 @@
  
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io('http://localhost');
+  var socket = io(location.host);
   socket.on('initialize', function (data) {
     var wishes = document.getElementById('wishes');
     console.log(data);
