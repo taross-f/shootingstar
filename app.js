@@ -38,10 +38,10 @@ function shoot() {
   timeoutId = setTimeout(function() {
     io.emit('shootStar', {
       expire: randomInt(3000, 5000),
-      startx: 0.2,
-      starty: 0.4,
-      endx: 0.8,
-      endy: 0.8,
+      startx: Math.random(),
+      starty: Math.random(),
+      endx: Math.random(),
+      endy: Math.random(),
       ease: 1
     });
     shoot();
@@ -51,6 +51,11 @@ function shoot() {
 function isNg(wish) {
   return ngwords.some(function(x) { return wish.indexOf(x) >= 0; });
 }
+
+var life = 0;
+setInterval(function() {
+  life++;  
+}, 1000);
 
 io.on('connection', function (socket) {
   console.log('connect...');
@@ -69,6 +74,22 @@ io.on('connection', function (socket) {
       });
       socket.emit('initialize', { wishes: wishes });
     }
+    
+    // rotate
+    socket.emit('rotate', [
+      {
+        angle: life % 360 / 6,
+        speed: 360 / 6 // todo
+      },
+      {
+        angle: life % 360 / 12,
+        speed: 360 / 12
+      },
+      {
+        angle: life % 360 / 24,
+        speed: 360 / 24
+      }
+    ]);
   });
   
   io.emit('currentWatcher', socket.client.conn.server.clientsCount);
@@ -101,8 +122,8 @@ io.on('connection', function (socket) {
     
     io.emit('showWish', {
       wish: data.wish,
-      x: 0.2,
-      y: 0.4,
+      x: Math.random(),
+      y: Math.random(),
       date: Date.now()
     });
   });
