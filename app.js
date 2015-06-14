@@ -54,7 +54,7 @@ function isNg(wish) {
 
 var life = 0;
 setInterval(function() {
-  life++;  
+  life++;
 }, 1000);
 
 io.on('connection', function (socket) {
@@ -74,6 +74,8 @@ io.on('connection', function (socket) {
       });
       socket.emit('initialize', { wishes: wishes });
     }
+    
+    console.log("life:" + life);
     
     // rotate
     socket.emit('rotate', [
