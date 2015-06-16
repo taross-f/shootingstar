@@ -36,10 +36,10 @@ var timeoutId = 0;
 
 function shoot() {
   timeoutId = setTimeout(function() {
-    var shootlength = 0.5;
-    var startx = randomInt(2, 4) / 100;
-    var starty = randomInt(2, 8) / 100;
-    var endx = randomInt(5, 8) / 100;
+    var shootlength = 0.8;
+    var startx = randomInt(2, 4) / 10;
+    var starty = randomInt(2, 8) / 10;
+    var endx = randomInt(5, 8) / 10;
     // let shooting length constant
     var endy = starty - Math.sqrt(Math.pow(shootlength, 2) - Math.pow(startx - endx, 2));
 
@@ -137,8 +137,8 @@ io.on('connection', function (socket) {
     
     io.emit('showWish', {
       wish: data.wish,
-      x: Math.random(),
-      y: Math.random(),
+      x: randomInt(3, 5) / 10,
+      y: randomInt(2, 6) / 10,
       date: Date.now()
     });
   });
