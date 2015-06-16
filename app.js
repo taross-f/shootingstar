@@ -36,13 +36,12 @@ var timeoutId = 0;
 
 function shoot() {
   timeoutId = setTimeout(function() {
-    var shootlength = 0.6;
-    var startx = randomInt(2, 8) / 10;
-    var starty = randomInt(2, 4) / 10;
-    var endx = randomInt(2, 8) / 10;
+    var shootlength = 0.8;
+    var startx = randomInt(30, 70) / 100;
+    var starty = randomInt(20, 40) / 100;
+    var endx = randomInt(10, 90) / 100;
     // let shooting length constant
-    var endy = starty - Math.sqrt(Math.pow(shootlength, 2) - Math.pow(startx - endx, 2));
-
+    var endy = Math.abs(starty - Math.sqrt(Math.pow(shootlength, 2) - Math.pow(startx - endx, 2))) + starty;
     // if a star overruns, round it
     endy = endy < 0.1 
       ? 0.1
