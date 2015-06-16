@@ -5,7 +5,7 @@ var redis = require('redis');
 
 var ngwords = require(__dirname + '/ngword.json');
 
-// localhost:6379 でredis動いてないと死
+// redis must run on localhost:6379, or die
 var client = redis.createClient();
 client.on("error", function(err) {
   console.log("Error:" + err);
@@ -36,12 +36,26 @@ var timeoutId = 0;
 
 function shoot() {
   timeoutId = setTimeout(function() {
+    var shootlength = 0.5;
+    var startx = randomInt(2, 4) / 100;
+    var starty = randomInt(2, 8) / 100;
+    var endx = randomInt(5, 8) / 100;
+    // let shooting length constant
+    var endy = starty - Math.sqrt(Math.pow(shootlength, 2) - Math.pow(startx - endx, 2));
+
+    // if a star overruns, round it
+    endy = endy < 0.1 
+      ? 0.1
+      : endy > 0.9
+        ? 0.9
+        : endy;
+        
     io.emit('shootStar', {
-      expire: randomInt(3000, 5000),
-      startx: Math.random(),
-      starty: Math.random(),
-      endx: Math.random(),
-      endy: Math.random(),
+      expire: randomInt(4000, 5000),
+      startx: startx,
+      starty: starty,
+      endx: endx,
+      endy: endy,
       ease: 1
     });
     shoot();
@@ -80,16 +94,16 @@ io.on('connection', function (socket) {
     // rotate
     socket.emit('rotate', [
       {
-        angle: life % 360 / 6,
-        speed: 360 / 6 // todo
+        angle: life % 360 / 1,
+        speed: 360 / 1 // todo
       },
       {
-        angle: life % 360 / 12,
-        speed: 360 / 12
+        angle: life % 360 / 2,
+        speed: 360 / 2
       },
       {
-        angle: life % 360 / 24,
-        speed: 360 / 24
+        angle: life % 360 / 4,
+        speed: 360 / 4
       }
     ]);
   });
@@ -101,7 +115,6 @@ io.on('connection', function (socket) {
     console.log(data);
     // validate data
     if (isNg(data.wish)) {
-      // response
       socket.emit('result', {
         result: false,
         wish: "",
@@ -116,7 +129,7 @@ io.on('connection', function (socket) {
       date: Date.now()
     }));
     
-    // response
+    // respond
     socket.emit('result', {
       result: true,
       wish: data.wish
