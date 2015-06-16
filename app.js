@@ -38,7 +38,7 @@ function shoot() {
   timeoutId = setTimeout(function() {
     var shootlength = 0.8;
     var startx = randomInt(30, 70) / 100;
-    var starty = randomInt(20, 40) / 100;
+    var starty = randomInt(10, 30) / 100;
     var endx = randomInt(10, 90) / 100;
     // let shooting length constant
     var endy = Math.abs(starty - Math.sqrt(Math.pow(shootlength, 2) - Math.pow(startx - endx, 2))) + starty;
