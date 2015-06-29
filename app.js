@@ -50,7 +50,7 @@ function shoot() {
         : endy;
         
     io.emit('shootStar', {
-      expire: randomInt(4000, 5000),
+      expire: randomInt(6000, 8000),
       startx: startx,
       starty: starty,
       endx: endx,
@@ -58,7 +58,7 @@ function shoot() {
       ease: 1
     });
     shoot();
-  }, randomInt(5000, 10000));
+  }, randomInt(20000, 30000));
 }
 
 function isNg(wish) {
@@ -93,16 +93,16 @@ io.on('connection', function (socket) {
     // rotate
     socket.emit('rotate', [
       {
+        angle: life % 360 / 0.25,
+        speed: 360 / 0.25 // todo
+      },
+      {
+        angle: life % 360 / 0.5,
+        speed: 360 / 0.5
+      },
+      {
         angle: life % 360 / 1,
-        speed: 360 / 1 // todo
-      },
-      {
-        angle: life % 360 / 2,
-        speed: 360 / 2
-      },
-      {
-        angle: life % 360 / 4,
-        speed: 360 / 4
+        speed: 360 / 1
       }
     ]);
   });
@@ -113,6 +113,7 @@ io.on('connection', function (socket) {
   socket.on('wish', function(data) {
     console.log(data);
     // validate data
+    if (!data.wish) return;
     if (isNg(data.wish)) {
       socket.emit('result', {
         result: false,
