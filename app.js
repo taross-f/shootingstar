@@ -62,7 +62,7 @@ function shoot() {
       canWish = false;
     }, 11000); // 雑
     shoot();
-  }, randomInt(20000, 20000));
+  }, randomInt(60000, 70000));
 }
 
 function isNg(wish) {
