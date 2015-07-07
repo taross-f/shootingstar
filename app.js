@@ -118,7 +118,7 @@ io.on('connection', function (socket) {
     console.log(data);
     // validate data
     if (!data.wish) return;
-    if (data.wish.length < 5) {
+    if (data.wish.length < 1) {
       socket.emit('result', {
         result: false,
         wish: "",
