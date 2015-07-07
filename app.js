@@ -5,7 +5,7 @@ var redis = require('redis');
 
 var ngwords = require(__dirname + '/ngword.json');
 
-// localhost:6379 でredis動いてないと死
+// redis must run on localhost:6379, or die
 var client = redis.createClient();
 client.on("error", function(err) {
   console.log("Error:" + err);
@@ -33,24 +33,46 @@ var randomInt = function(min, max) {
 };
 
 var timeoutId = 0;
-
+var canWish = false;
 function shoot() {
   timeoutId = setTimeout(function() {
+    var shootlength = 0.8;
+    var startx = randomInt(30, 70) / 100;
+    var starty = randomInt(10, 30) / 100;
+    var endx = randomInt(10, 90) / 100;
+    // let shooting length constant
+    var endy = Math.abs(starty - Math.sqrt(Math.pow(shootlength, 2) - Math.pow(startx - endx, 2))) + starty;
+    // if a star overruns, round it
+    endy = endy < 0.1 
+      ? 0.1
+      : endy > 0.9
+        ? 0.9
+        : endy;
+        
     io.emit('shootStar', {
-      expire: randomInt(3000, 5000),
-      startx: 0.2,
-      starty: 0.4,
-      endx: 0.8,
-      endy: 0.8,
+      expire: randomInt(9000, 10000),
+      startx: startx,
+      starty: starty,
+      endx: endx,
+      endy: endy,
       ease: 1
     });
+    canWish = true;
+    setTimeout(function() {
+      canWish = false;
+    }, 11000); // 雑
     shoot();
-  }, randomInt(5000, 10000));
+  }, randomInt(60000, 70000));
 }
 
 function isNg(wish) {
   return ngwords.some(function(x) { return wish.indexOf(x) >= 0; });
 }
+
+var life = 0;
+setInterval(function() {
+  life++;
+}, 1000);
 
 io.on('connection', function (socket) {
   console.log('connect...');
@@ -69,16 +91,35 @@ io.on('connection', function (socket) {
       });
       socket.emit('initialize', { wishes: wishes });
     }
+    
+    console.log("life:" + life);
+    
+    // rotate
+    socket.emit('rotate', [
+      {
+        angle: life % 360 / 0.25,
+        speed: 360 / 0.25 // todo
+      },
+      {
+        angle: life % 360 / 0.5,
+        speed: 360 / 0.5
+      },
+      {
+        angle: life % 360 / 1,
+        speed: 360 / 1
+      }
+    ]);
   });
   
-  io.emit('currentWatcher', socket.client.conn.server.clientsCount);
+  io.emit('currentWatcher', socket.client.conn.server.clientsCount + 5);
   if (!timeoutId) shoot();
   
   socket.on('wish', function(data) {
     console.log(data);
     // validate data
+    if (!data.wish) return;
+    if (!canWish) return;
     if (isNg(data.wish)) {
-      // response
       socket.emit('result', {
         result: false,
         wish: "",
@@ -93,7 +134,7 @@ io.on('connection', function (socket) {
       date: Date.now()
     }));
     
-    // response
+    // respond
     socket.emit('result', {
       result: true,
       wish: data.wish
@@ -101,15 +142,15 @@ io.on('connection', function (socket) {
     
     io.emit('showWish', {
       wish: data.wish,
-      x: 0.2,
-      y: 0.4,
+      x: randomInt(3, 5) / 10,
+      y: randomInt(2, 6) / 10,
       date: Date.now()
     });
   });
   
   socket.on('disconnect', function (client) {
     console.log('disconnect:' + client);
-    io.emit('currentWatcher', socket.client.conn.server.clientsCount);
+    io.emit('currentWatcher', socket.client.conn.server.clientsCount + 5);
   });
 });
 
