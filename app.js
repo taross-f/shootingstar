@@ -33,7 +33,7 @@ var randomInt = function(min, max) {
 };
 
 var timeoutId = 0;
-
+var canWish = false;
 function shoot() {
   timeoutId = setTimeout(function() {
     var shootlength = 0.8;
@@ -57,6 +57,10 @@ function shoot() {
       endy: endy,
       ease: 1
     });
+    canWish = true;
+    setTimeout(function() {
+      canWish = false;
+    }, 11000); // 雑
     shoot();
   }, randomInt(60000, 70000));
 }
@@ -114,6 +118,7 @@ io.on('connection', function (socket) {
     console.log(data);
     // validate data
     if (!data.wish) return;
+    if (!canWish) return;
     if (isNg(data.wish)) {
       socket.emit('result', {
         result: false,
