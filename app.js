@@ -62,7 +62,7 @@ function shoot() {
       canWish = false;
     }, 11000); // 雑
     shoot();
-  }, randomInt(60000, 70000));
+  }, randomInt(20000, 20000));
 }
 
 function isNg(wish) {
@@ -118,6 +118,22 @@ io.on('connection', function (socket) {
     console.log(data);
     // validate data
     if (!data.wish) return;
+    if (data.wish.length < 5) {
+      socket.emit('result', {
+        result: false,
+        wish: "",
+        error: "願い事が短いよ・・・"
+      });
+      return;
+    }
+    if (data.wish.length > 15) {
+      socket.emit('result', {
+        result: false,
+        wish: "",
+        error: "願い事が長いよ・・・"
+      });
+      return;
+    }
     if (!canWish) return;
     if (isNg(data.wish)) {
       socket.emit('result', {
