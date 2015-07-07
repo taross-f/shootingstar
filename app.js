@@ -50,7 +50,7 @@ function shoot() {
         : endy;
         
     io.emit('shootStar', {
-      expire: randomInt(6000, 8000),
+      expire: randomInt(9000, 10000),
       startx: startx,
       starty: starty,
       endx: endx,
@@ -58,7 +58,7 @@ function shoot() {
       ease: 1
     });
     shoot();
-  }, randomInt(20000, 30000));
+  }, randomInt(60000, 70000));
 }
 
 function isNg(wish) {
