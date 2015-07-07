@@ -107,7 +107,7 @@ io.on('connection', function (socket) {
     ]);
   });
   
-  io.emit('currentWatcher', socket.client.conn.server.clientsCount);
+  io.emit('currentWatcher', socket.client.conn.server.clientsCount + 5);
   if (!timeoutId) shoot();
   
   socket.on('wish', function(data) {
@@ -145,7 +145,7 @@ io.on('connection', function (socket) {
   
   socket.on('disconnect', function (client) {
     console.log('disconnect:' + client);
-    io.emit('currentWatcher', socket.client.conn.server.clientsCount);
+    io.emit('currentWatcher', socket.client.conn.server.clientsCount + 5);
   });
 });
 
