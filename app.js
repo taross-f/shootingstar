@@ -23,7 +23,10 @@ client.on("error", function(err) {
 app.listen(config.port);
 
 function handler (req, res) {
-  if (isProduct) return;
+  if (isProduct) {
+      res.end();
+      return;
+  }
   fs.readFile(__dirname + '/index.html',
   function (err, data) {
     if (err) {
