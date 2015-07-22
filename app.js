@@ -1,3 +1,8 @@
+
+var isProduct = process.argv[2] == 'r';
+
+console.log(isProduct ? "env:production." : "env:development");
+
 var app = require('http').createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
