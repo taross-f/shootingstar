@@ -1,0 +1,7 @@
+{
+    "port" :80,
+    "minShootSpan" :6000,
+    "maxShootSpan" :7000,
+    "minWishLength" : 1,
+    "maxWishLength" : 15
+}

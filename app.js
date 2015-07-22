@@ -10,15 +10,20 @@ var redis = require('redis');
 
 var ngwords = require(__dirname + '/ngword.json');
 
+var config = isProduct
+    ? require(__dirname + '/config.json')
+    : require(__dirname + '/config_debug.json');
+
 // redis must run on localhost:6379, or die
 var client = redis.createClient();
 client.on("error", function(err) {
   console.log("Error:" + err);
 });
 
-app.listen(80);
+app.listen(config.port);
 
 function handler (req, res) {
+  if (isProduct) return;
   fs.readFile(__dirname + '/index.html',
   function (err, data) {
     if (err) {
@@ -67,7 +72,7 @@ function shoot() {
       canWish = false;
     }, 11000); // 雑
     shoot();
-  }, randomInt(60000, 70000));
+  }, randomInt(config.minShootSpan, config.maxShootSpan));
 }
 
 function isNg(wish) {
@@ -123,7 +128,7 @@ io.on('connection', function (socket) {
     console.log(data);
     // validate data
     if (!data.wish) return;
-    if (data.wish.length < 1) {
+    if (data.wish.length < config.minWishLength) {
       socket.emit('result', {
         result: false,
         wish: "",
@@ -131,7 +136,7 @@ io.on('connection', function (socket) {
       });
       return;
     }
-    if (data.wish.length > 15) {
+    if (data.wish.length > config.maxWishLength) {
       socket.emit('result', {
         result: false,
         wish: "",
